@@ -8,7 +8,7 @@ test("Register Success", async () => {
             "npwp": "1213123213",
             "siup": "213123123"
         },
-        "email": `${uuid()}@example.com`,
+        "email": `${uuid()}@yahoo.com`,
         "password": "rahasia",
         "profile": {
             "birth": {
@@ -26,6 +26,38 @@ test("Register Success", async () => {
 
     const registerResponse = await axios.post("http://localhost:8080/api/brand/users/_signup", registerRequest)
     const registerResponseData = registerResponse.data;
+    console.info(registerResponseData);
+
+    expect(registerResponseData.code).toBe(200);
+    expect(registerResponseData.status).toBe("OK");
+})
+
+test("Register Success using Yahoo Email", async () => {
+    const registerRequest = {
+        "company": {
+            "name": "Example",
+            "npwp": "1213123213",
+            "siup": "213123123"
+        },
+        "email": `${uuid()}@yahoo.com`,
+        "password": "rahasia",
+        "profile": {
+            "birth": {
+                "date": 1980
+            },
+            "phone": "0823123123",
+            "gender": "MALE",
+            "image": {},
+            "interests": [
+                "ECOMMERCE"
+            ],
+            "name": "Nama Admin"
+        }
+    }
+
+    const registerResponse = await axios.post("http://localhost:8080/api/brand/users/_signup", registerRequest)
+    const registerResponseData = registerResponse.data;
+    console.info(registerResponseData);
 
     expect(registerResponseData.code).toBe(200);
     expect(registerResponseData.status).toBe("OK");
@@ -50,7 +82,7 @@ test("Register Error Company Name", async () => {
             "interests": [
                 "ECOMMERCE"
             ],
-            "name": "Nama Admin"
+            "name": "Eko"
         }
     }
 
@@ -104,4 +136,46 @@ test("Register Success And Login", async () => {
     expect(loginResponseData.code).toBe(200);
     expect(loginResponseData.status).toBe("OK");
     expect(loginResponseData.data.token).not.toBeNull();
+})
+
+test("Register Success And Login Failed", async () => {
+    const registerRequest = {
+        "company": {
+            "name": "Example",
+            "npwp": "1213123213",
+            "siup": "213123123"
+        },
+        "email": `${uuid()}@example.com`,
+        "password": "rahasia",
+        "profile": {
+            "birth": {
+                "date": 1980
+            },
+            "phone": "0823123123",
+            "gender": "MALE",
+            "image": {},
+            "interests": [
+                "ECOMMERCE"
+            ],
+            "name": "Nama Admin"
+        }
+    }
+
+    const registerResponse = await axios.post("http://localhost:8080/api/brand/users/_signup", registerRequest)
+    const registerResponseData = registerResponse.data;
+
+    expect(registerResponseData.code).toBe(200);
+    expect(registerResponseData.status).toBe("OK");
+
+    const loginRequest = {
+        "password": "salah",
+        "username": registerRequest.email
+    };
+    const loginResponse = await axios.post("http://localhost:8080/api/user/_login", loginRequest, {
+        validateStatus: status => true
+    })
+    const loginResponseData = loginResponse.data;
+
+    expect(loginResponseData.code).toBe(401);
+    expect(loginResponseData.status).toBe("UNAUTHORIZED");
 })
